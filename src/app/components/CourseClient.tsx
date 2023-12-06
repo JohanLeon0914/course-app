@@ -14,7 +14,7 @@ export const CourseClient = ({ courses }: Props) => {
     <h1 className="text-center font-semibold text-2xl">Courses</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4 mt-2">
         {courses.map((course: Course) => (
-          <div key={course.id} className="w-full h-full">
+          <div key={course.id} className="w-full h-full ">
             <CourseData course={course} />
           </div>
         ))}

@@ -9,6 +9,7 @@ import { auth } from "@/firebase/config";
 function Navbar() {
   const [nav, setNav] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false)
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -96,6 +97,13 @@ function Navbar() {
                 Contact{" "}
               </li>
             </Link>
+            {user && (
+              <Link href="/your-courses">
+              <li className="ml-10 text-sm uppercase hover:border-b">
+                Your courses{" "}
+              </li>
+            </Link>
+            )}
             {user && (
               <Link href="/profile">
               <li className="ml-10 text-sm uppercase hover:border-b">

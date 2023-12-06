@@ -6,6 +6,7 @@ import FormattedPrice from "./FormattedPrice";
 import ChekoutButton from "./ChekoutButton";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/firebase/config";
+import Swal from "sweetalert2";
 
 interface CourseDetailsProps {
   course: Course;
@@ -41,13 +42,21 @@ const SectionItem: React.FC<{ section: Section }> = ({ section }) => {
 };
 
 const CourseDetails: React.FC<CourseDetailsProps> = ({ course }) => {
-  const courses: Course[] = [course]
+  const courses: Course[] = [course];
   const [user, setUser] = useState<User | null>(null);
   const startArray = Array.from({ length: course?.rating }, (_, index) => (
     <span key={index} className="text-yellow-400">
       <IoIosStar />
     </span>
   ));
+  const alertSignIn = () => {
+    Swal.fire({
+      icon: 'info',
+      title: 'Please, sign in to enroll in a course.',
+      showCancelButton: false,
+      confirmButtonText: 'OK',
+  });
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -78,7 +87,16 @@ const CourseDetails: React.FC<CourseDetailsProps> = ({ course }) => {
       </div>
 
       <div className="mt-6">
-        <ChekoutButton courses={courses} email={user?.email}/>
+        {user ? (
+          <ChekoutButton courses={courses} email={user?.email} />
+        ) : (
+          <button
+            onClick={alertSignIn}
+            className="bg-bgLight text-white px-4 py-2 rounded hover:bg-bgDark"
+          >
+            Enroll in the course
+          </button>
+        )}
       </div>
     </div>
   );

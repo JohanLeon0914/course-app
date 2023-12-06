@@ -4,25 +4,27 @@ import { loadStripe } from "@stripe/stripe-js";
 import {
   doc,
   updateDoc,
-  setDoc,
   arrayUnion,
-  getDoc,
   addDoc,
   collection,
   getDocs,
   query,
   where,
 } from "firebase/firestore";
+import { isUserEnrolledInCourse } from "@/helpers/Helpers";
+import Link from "next/link";
 
 interface Props {
   courses: Course[];
   email: string | null | undefined;
 }
 
-const ChekoutButton = ({ courses, email }: Props) => {
+const ChekoutButton = async({ courses, email }: Props) => {
   const stripePromise = loadStripe(
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
   );
+
+  const isEnrolled = await isUserEnrolledInCourse(email!, courses[0])
 
   const enrollToTheCourse = async () => {
     
@@ -65,16 +67,24 @@ const ChekoutButton = ({ courses, email }: Props) => {
       throw new Error("Failed to create Stripe Payment");
     }
   };
-  
+
 
   return (
     <div>
-      <button
-        onClick={handleCheckout}
-        className="bg-bgLight text-white px-4 py-2 rounded hover:bg-bgDark"
-      >
-        Enroll in the course
-      </button>
+      {
+        !isEnrolled ? (
+          <button  onClick={handleCheckout}
+          className="bg-bgLight text-white px-4 py-2 rounded hover:bg-bgDark">
+            Enroll in the course
+          </button>
+        ): (
+          <Link href={`/course-play/?id=${courses[0].id}`}>
+            <button className="bg-bgLight text-white px-4 py-2 rounded hover:bg-bgDark">
+            Go to the course
+          </button>
+          </Link>
+        )
+      }
     </div>
   );
 };
