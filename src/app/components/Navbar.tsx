@@ -3,10 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { AiOutlineMenu, AiOutlineClose,  } from "react-icons/ai";
+import {  onAuthStateChanged, User, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from "@/firebase/config";
 
 function Navbar() {
   const [nav, setNav] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,6 +24,37 @@ function Navbar() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {})
+      .catch((error) => {
+        console.log("Error al cerrar sesión:", error);
+      });
+  };
+
+  const handleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      // Inicia sesión con Google
+      await signInWithPopup(auth, provider);
+      // Swal.fire({
+      //   icon: "success",
+      //   title: "¡Sesión iniciada correctamente!",
+      //   text: "Bienvenido",
+      // });
+    } catch (error) {
+      console.error("Error al iniciar sesión", error);
+    }
+  };
   
 
   const handleNav = () => {
@@ -62,6 +96,22 @@ function Navbar() {
                 Contact{" "}
               </li>
             </Link>
+            {user && (
+              <Link href="/profile">
+              <li className="ml-10 text-sm uppercase hover:border-b">
+                Profile{" "}
+              </li>
+            </Link>
+            )}
+            {user ? (
+              <li className="ml-10 text-sm uppercase hover:border-b">
+                <button className="text-sm uppercase" onClick={handleLogout}>Sign out</button>
+              </li>
+            ) : (
+              <li className="ml-10 text-sm uppercase hover:border-b">
+                <button className="text-sm uppercase" onClick={handleLogin}>Sign in</button>
+              </li>
+            )}
           </ul>
           <div onClick={handleNav} className="md:hidden cursor-pointer p-5">
             <AiOutlineMenu size={25} />
@@ -75,7 +125,7 @@ function Navbar() {
         <div
           className={
             nav
-              ? "fixed left-0 top-0 w-[75%] sm:w-[60%] md:w-[45%] h-screen  bg-[#141414] text-white p-10 ease-in duration-500"
+              ? "fixed left-0 top-0 w-[75%] sm:w-[60%] md:w-[45%] h-screen  bg-bgDark text-lightText p-10 ease-in duration-500"
               : "fixed left-[-100%] top-0 p-10 ease-in duration-500"
           }
         >
@@ -114,6 +164,23 @@ function Navbar() {
               <Link href="/contact">
                 <li onClick={() => setNav(false)} className="py-4 text-sm"> Contact </li>
               </Link>
+              {user && (
+                <Link href="/profile">
+                <li className="py-4 text-sm">
+                {" "}
+                    Profile{" "}
+                </li>
+                </Link>
+              )} 
+              {user ? (
+                <li className="py-4 text-sm">
+                  <button className="uppercase" onClick={handleLogout}>Sign out</button>
+                </li>
+              ) : (
+                <li className="py-4 text-sm">
+                  <button className="uppercase" onClick={handleLogin}>Sign in</button>
+                </li>
+              )}
             </ul>
           </div>
         </div>
